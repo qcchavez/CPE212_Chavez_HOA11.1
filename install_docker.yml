@@ -67,7 +67,7 @@
       build:
         path: /home/{{ ansible_user }}/docker-project
         dockerfile: /home/{{ ansible_user }}/docker-project/Dockerfile
-      force: yes  # Ensure the image is rebuilt even if it already exists
+      force: yes
     when: ansible_distribution == "Ubuntu"
 
   - name: Run Docker Container
