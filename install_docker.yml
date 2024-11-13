@@ -76,5 +76,5 @@
       restart_policy: always
       ports:
         - "8080:80"
-        - "3306:3306"
+        - "3307:3306"
     when: ansible_distribution == "Ubuntu"
