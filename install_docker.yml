@@ -3,25 +3,18 @@
   become: true
   tasks:
 
-  - name: update repository index (Ubuntu)
+  - name: Update repository index (Ubuntu)
     tags: always
     apt:
       update_cache: yes
     changed_when: false
     when: ansible_distribution == "Ubuntu"
-    
-  - name: Installing Docker
+
+  - name: Install Docker
     apt:
       name: docker.io
       state: present
       update_cache: yes
-    when: ansible_distribution == "Ubuntu"
-
-  - name: Installing Docker using Snap
-    snap:
-      name: docker
-      state: present
-      classic: yes
     when: ansible_distribution == "Ubuntu"
 
   - name: Start Docker service
@@ -31,7 +24,7 @@
       enabled: yes
     when: ansible_distribution == "Ubuntu"
 
-  - name: Adding user "qcchavez" to Docker group
+  - name: Add user "qcchavez" to Docker group
     user:
       name: "{{ ansible_user }}"
       groups: docker
@@ -39,14 +32,14 @@
       state: present
     when: ansible_distribution == "Ubuntu"
 
-  - name: Creating a directory for Docker
+  - name: Create directory for Docker project
     file:
       name: "/home/{{ ansible_user }}/docker-project"
       state: directory
       mode: '0755'
     when: ansible_distribution == "Ubuntu"
 
-  - name: Copying Dockerfile to remote server
+  - name: Copy Dockerfile to remote server
     copy:
       src: /home/qcchavez/CPE212_Chavez_HOA11.1/Dockerfile
       dest: "/home/{{ ansible_user }}/docker-project/Dockerfile"
@@ -60,15 +53,24 @@
       mode: '0644'
     when: ansible_distribution == "Ubuntu"
 
-  - name: Building Docker Image using Dockerfile
+  - name: Allow port 8080 for web access in UFW
+    ufw:
+      rule: allow
+      port: '8080'
+      proto: tcp
+    when: ansible_distribution == "Ubuntu"
+
+  - name: Build Docker Image using Dockerfile
     docker_image:
       name: apache-mysql
       source: build
       build:
-        path: "/home/{{ ansible_user }}/docker-project"
+        path: /home/{{ ansible_user }}/docker-project
+        dockerfile: /home/{{ ansible_user }}/docker-project/Dockerfile
+      force: yes  # Ensure the image is rebuilt even if it already exists
     when: ansible_distribution == "Ubuntu"
 
-  - name: Running Docker Container
+  - name: Run Docker Container
     docker_container:
       name: apache-mysql-container
       image: apache-mysql:latest
@@ -76,5 +78,6 @@
       restart_policy: always
       ports:
         - "8080:80"
-        - "3307:3306"
+        - "3306:3306"
     when: ansible_distribution == "Ubuntu"
+

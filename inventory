@@ -1,4 +1,5 @@
-[Ubuntu]
+[all]
 #Server 1
-192.168.56.116
+192.168.56.102 ansible_python_interpreter=/usr/bin/python3
+
 
